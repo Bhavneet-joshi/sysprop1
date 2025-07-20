@@ -1,0 +1,168 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(240, 100%, 9%);
+  --muted: hsl(240, 4.8%, 95.9%);
+  --muted-foreground: hsl(240, 3.8%, 46.1%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(240, 100%, 9%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(240, 100%, 9%);
+  --border: hsl(240, 5.9%, 90%);
+  --input: hsl(240, 5.9%, 90%);
+  --primary: hsl(240, 100%, 25%);
+  --primary-foreground: hsl(0, 0%, 100%);
+  --secondary: hsl(240, 4.8%, 95.9%);
+  --secondary-foreground: hsl(240, 5.9%, 10%);
+  --accent: hsl(240, 4.8%, 95.9%);
+  --accent-foreground: hsl(240, 5.9%, 10%);
+  --destructive: hsl(0, 84.2%, 60.2%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 5.9%, 10%);
+  --radius: 0.5rem;
+  
+  /* Custom HLSG colors */
+  --navyblue: hsl(240, 100%, 25%);
+  --goldenrod1: hsl(43, 87%, 44%);
+  --goldenrod2: hsl(43, 74%, 49%);
+  --darkblue: hsl(240, 100%, 34%);
+  --golden: hsl(51, 100%, 50%);
+  --black: hsl(0, 0%, 0%);
+  --graycustom: hsl(0, 0%, 50%);
+  --white: hsl(0, 0%, 100%);
+}
+
+.dark {
+  --background: hsl(240, 10%, 3.9%);
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(240, 3.7%, 15.9%);
+  --muted-foreground: hsl(240, 5%, 64.9%);
+  --popover: hsl(240, 10%, 3.9%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(240, 10%, 3.9%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(240, 3.7%, 15.9%);
+  --input: hsl(240, 3.7%, 15.9%);
+  --primary: hsl(240, 100%, 25%);
+  --primary-foreground: hsl(0, 0%, 98%);
+  --secondary: hsl(240, 3.7%, 15.9%);
+  --secondary-foreground: hsl(0, 0%, 98%);
+  --accent: hsl(240, 3.7%, 15.9%);
+  --accent-foreground: hsl(0, 0%, 98%);
+  --destructive: hsl(0, 62.8%, 30.6%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --ring: hsl(240, 4.9%, 83.9%);
+  --radius: 0.5rem;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply font-sans antialiased bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .text-navyblue {
+    color: var(--navyblue);
+  }
+  
+  .text-goldenrod1 {
+    color: var(--goldenrod1);
+  }
+  
+  .text-goldenrod2 {
+    color: var(--goldenrod2);
+  }
+  
+  .text-darkblue {
+    color: var(--darkblue);
+  }
+  
+  .text-golden {
+    color: var(--golden);
+  }
+  
+  .text-graycustom {
+    color: var(--graycustom);
+  }
+  
+  .bg-navyblue {
+    background-color: var(--navyblue);
+  }
+  
+  .bg-goldenrod1 {
+    background-color: var(--goldenrod1);
+  }
+  
+  .bg-goldenrod2 {
+    background-color: var(--goldenrod2);
+  }
+  
+  .bg-darkblue {
+    background-color: var(--darkblue);
+  }
+  
+  .bg-golden {
+    background-color: var(--golden);
+  }
+  
+  .bg-graycustom {
+    background-color: var(--graycustom);
+  }
+  
+  .border-navyblue {
+    border-color: var(--navyblue);
+  }
+  
+  .border-goldenrod1 {
+    border-color: var(--goldenrod1);
+  }
+  
+  .hover-nav:hover {
+    background-color: rgba(207, 165, 17, 0.1);
+    border-bottom: 2px solid var(--goldenrod1);
+  }
+  
+  .gradient-bg {
+    background: linear-gradient(135deg, var(--navyblue) 0%, var(--darkblue) 100%);
+  }
+  
+  .hero-gradient {
+    background: linear-gradient(135deg, var(--navyblue) 0%, var(--darkblue) 50%, var(--goldenrod1) 100%);
+  }
+  
+  .card-hover:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  }
+  
+  .service-card:hover {
+    background: linear-gradient(135deg, var(--navyblue) 0%, var(--darkblue) 100%);
+    color: white;
+  }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, var(--navyblue) 0%, var(--darkblue) 100%);
+  }
+  
+  .btn-primary:hover {
+    background: linear-gradient(135deg, var(--darkblue) 0%, var(--navyblue) 100%);
+    transform: translateY(-1px);
+  }
+  
+  .btn-golden {
+    background: linear-gradient(135deg, var(--goldenrod1) 0%, var(--goldenrod2) 100%);
+  }
+  
+  .btn-golden:hover {
+    background: linear-gradient(135deg, var(--goldenrod2) 0%, var(--goldenrod1) 100%);
+    transform: translateY(-1px);
+  }
+}
