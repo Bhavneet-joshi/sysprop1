@@ -35,16 +35,17 @@ export function NavigationBar() {
 
   const NavLink = ({ href, label }: { href: string; label: string }) => (
     <Link href={href}>
-      <a
+      <span
         className={`px-3 py-2 text-sm font-medium transition-all duration-200 ${
           location === href
             ? "text-blue-600 dark:text-yellow-400"
             : "text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-yellow-400"
         }`}
         onClick={() => setIsMenuOpen(false)}
+        style={{ cursor: 'pointer', display: 'inline-block' }}
       >
         {label}
-      </a>
+      </span>
     </Link>
   );
 

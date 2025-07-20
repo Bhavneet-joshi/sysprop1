@@ -74,7 +74,6 @@ function Router() {
       {isAuthenticated ? (
         <ProtectedLayout>
           <Switch>
-            <Route path="/dashboard" component={Home} />
             {user?.role === 'client' && (
               <>
                 <Route path="/dashboard" component={ClientDashboard} />

@@ -1,4 +1,8 @@
 import { type User, type Contract, type ContractComment, type EmployeePermission } from "@shared/schema";
+import bcrypt from "bcrypt";
+
+const saltRounds = 10;
+const passwordHash = bcrypt.hashSync("Qwerty@1234", saltRounds);
 
 // Mock data for development
 const mockUsers: User[] = [
@@ -15,8 +19,9 @@ const mockUsers: User[] = [
     address: null,
     employeeId: null,
     isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    passwordHash,
   },
   {
     id: "employee-1",
@@ -31,8 +36,9 @@ const mockUsers: User[] = [
     contactNumber: null,
     address: null,
     isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    passwordHash,
   },
   {
     id: "client-1",
@@ -47,8 +53,9 @@ const mockUsers: User[] = [
     address: null,
     employeeId: null,
     isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    passwordHash,
   },
 ];
 
@@ -59,15 +66,16 @@ const mockContracts: Contract[] = [
     description: "Development of a web application",
     clientId: "client-1",
     assignedEmployeeId: "employee-1",
-    status: "active",
-    contractDate: new Date("2024-01-15"),
-    startDate: new Date("2024-01-20"),
-    endDate: new Date("2024-06-20"),
+    status: "In Review",
+    contractDate: "2024-01-15",
+    startDate: "2024-01-20",
+    endDate: "2024-06-20",
     contractValue: 50000,
     pdfUrl: "",
     pdfContent: "",
     createdAt: new Date(),
     updatedAt: new Date(),
+    createdBy: "admin-1",
   },
   {
     id: 2,
@@ -75,15 +83,16 @@ const mockContracts: Contract[] = [
     description: "IT consulting services",
     clientId: "client-1",
     assignedEmployeeId: "employee-1",
-    status: "in_progress",
-    contractDate: new Date("2024-01-10"),
-    startDate: new Date("2024-01-15"),
-    endDate: new Date("2024-03-15"),
+    status: "In Review",
+    contractDate: "2024-01-10",
+    startDate: "2024-01-15",
+    endDate: "2024-03-15",
     contractValue: 25000,
     pdfUrl: "",
     pdfContent: "",
     createdAt: new Date(),
     updatedAt: new Date(),
+    createdBy: "admin-1",
   },
 ];
 
@@ -255,9 +264,9 @@ export class MockStorage {
     cancelled: number;
   }> {
     const total = mockContracts.length;
-    const active = mockContracts.filter(c => c.status === "active").length;
-    const completed = mockContracts.filter(c => c.status === "completed").length;
-    const cancelled = mockContracts.filter(c => c.status === "cancelled").length;
+    const active = mockContracts.filter(c => c.status === "In Review").length;
+    const completed = mockContracts.filter(c => c.status === "Final Reviewed - Signed").length;
+    const cancelled = mockContracts.filter(c => c.status === "Modified - Signed").length;
     
     return { total, active, completed, cancelled };
   }

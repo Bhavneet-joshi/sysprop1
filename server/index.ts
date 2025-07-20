@@ -2,6 +2,7 @@ import "dotenv/config";
 import express, { type Request, Response, NextFunction } from "express";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
+import cors from "cors";
 // REMOVE: import { db } from "./db";
 // REMOVE: import { users } from "@shared/schema";
 // REMOVE: import bcrypt from "bcrypt";
@@ -9,6 +10,10 @@ import { setupVite, serveStatic, log } from "./vite";
 // REMOVE: import { nanoid } from "nanoid";
 
 const app = express();
+app.use(cors({
+  origin: "http://localhost:3000", // Change to your frontend URL if different
+  credentials: true,
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 

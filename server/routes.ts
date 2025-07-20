@@ -20,6 +20,7 @@ import {
   contractFormSchema,
   commentFormSchema,
 } from "@shared/schema";
+import bcrypt from "bcrypt";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Auth middleware
@@ -144,9 +145,11 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post('/api/auth/register', async (req, res) => {
     try {
       const { email, password, role } = req.body;
+      const saltRounds = 10;
+      const passwordHash = await bcrypt.hash(password, saltRounds);
       const user = await users.createUser({
         email,
-        passwordHash: password,
+        passwordHash,
         role,
       });
       res.json(user);

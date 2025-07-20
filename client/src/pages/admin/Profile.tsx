@@ -16,7 +16,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { z } from "zod";
 import { apiRequest } from "@/lib/queryClient";
 import { isUnauthorizedError } from "@/lib/authUtils";
-import { User, Mail, Phone, MapPin, CreditCard, Key, Camera, Shield, Settings } from "lucide-react";
+import { User, Mail, Phone, MapPin, CreditCard, Key, Camera, Shield, Settings, CheckCircle } from "lucide-react";
 
 const profileSchema = z.object({
   firstName: z.string().min(1, "First name is required"),
@@ -174,344 +174,200 @@ export default function AdminProfile() {
   return (
     <ProtectedLayout>
       <div className="min-h-screen bg-gray-50">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Header */}
-          <div className="mb-8">
-            <h1 className="text-3xl font-bold text-navyblue mb-2">Administrator Profile</h1>
-            <p className="text-gray-600">
-              Manage your administrator account settings and system preferences.
-            </p>
-          </div>
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {/* Left Column */}
+            <div className="md:col-span-2">
+              {/* Profile Header */}
+              <Card className="mb-8">
+                <CardContent className="pt-6">
+                  <div className="flex items-center space-x-6">
+                    <div className="relative">
+                      <Avatar className="h-24 w-24">
+                        <AvatarImage src={user?.profileImageUrl || ""} alt={user?.firstName || ""} />
+                        <AvatarFallback className="text-xl">
+                          {user?.firstName?.charAt(0) || "A"}
+                        </AvatarFallback>
+                      </Avatar>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0"
+                      >
+                        <Camera className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    <div className="flex-1">
+                      <h2 className="text-2xl font-bold text-navyblue">
+                        {user?.firstName} {user?.lastName}
+                      </h2>
+                      <p className="text-gray-600">{user?.email}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
 
-          {/* Profile Overview */}
-          <Card className="mb-8">
-            <CardContent className="pt-6">
-              <div className="flex items-center space-x-6">
-                <div className="relative">
-                  <Avatar className="h-24 w-24">
-                    <AvatarImage src={user?.profileImageUrl || ""} alt={user?.firstName || ""} />
-                    <AvatarFallback className="text-xl">
-                      {user?.firstName?.charAt(0) || "A"}
-                    </AvatarFallback>
-                  </Avatar>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    className="absolute -bottom-2 -right-2 h-8 w-8 rounded-full p-0"
-                  >
-                    <Camera className="h-4 w-4" />
-                  </Button>
-                </div>
-                
-                <div className="flex-1">
-                  <div className="flex items-center space-x-3 mb-2">
-                    <h2 className="text-2xl font-bold text-navyblue">
-                      {user?.firstName} {user?.lastName}
-                    </h2>
-                    <Badge className="bg-red-100 text-red-800">
-                      <Shield className="h-3 w-3 mr-1" />
-                      Administrator
-                    </Badge>
-                  </div>
-                  <div className="flex items-center space-x-4 text-gray-600">
-                    <div className="flex items-center space-x-1">
-                      <Mail className="h-4 w-4" />
-                      <span>{user?.email}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <Phone className="h-4 w-4" />
-                      <span>{user?.contactNumber || "Not provided"}</span>
-                    </div>
-                  </div>
-                  <div className="mt-3 flex items-center space-x-4 text-sm text-gray-500">
+              {/* Profile Form Tabs */}
+              <Tabs defaultValue="personal" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="personal">Personal Information</TabsTrigger>
+                  <TabsTrigger value="security">Security</TabsTrigger>
+                </TabsList>
+                <TabsContent value="personal">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Personal Information</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Form {...profileForm}>
+                        <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-6">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <FormField
+                              control={profileForm.control}
+                              name="firstName"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>First Name</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                            <FormField
+                              control={profileForm.control}
+                              name="lastName"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Last Name</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                          <FormField
+                            control={profileForm.control}
+                            name="email"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Email Address</FormLabel>
+                                <FormControl>
+                                  <Input type="email" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <Button
+                            type="submit"
+                            className="btn-primary text-white"
+                            disabled={updateProfileMutation.isPending}
+                          >
+                            {updateProfileMutation.isPending ? "Updating..." : "Update Profile"}
+                          </Button>
+                        </form>
+                      </Form>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                <TabsContent value="security">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle>Change Password</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <Form {...passwordForm}>
+                        <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-6">
+                          <FormField
+                            control={passwordForm.control}
+                            name="currentPassword"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Current Password</FormLabel>
+                                <FormControl>
+                                  <Input type="password" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={passwordForm.control}
+                            name="newPassword"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>New Password</FormLabel>
+                                <FormControl>
+                                  <Input type="password" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <FormField
+                            control={passwordForm.control}
+                            name="confirmPassword"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Confirm New Password</FormLabel>
+                                <FormControl>
+                                  <Input type="password" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                          <Button
+                            type="submit"
+                            className="btn-primary text-white"
+                            disabled={changePasswordMutation.isPending}
+                          >
+                            {changePasswordMutation.isPending ? "Changing..." : "Change Password"}
+                          </Button>
+                        </form>
+                      </Form>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+              </Tabs>
+            </div>
+
+            {/* Right Column */}
+            <div className="space-y-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Admin Permissions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <div className="flex items-center">
+                    <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
                     <span>Full system access</span>
-                    <span>•</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
                     <span>User management</span>
-                    <span>•</span>
+                  </div>
+                  <div className="flex items-center">
+                    <CheckCircle className="h-4 w-4 mr-2 text-green-500" />
                     <span>Contract administration</span>
                   </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Profile Form */}
-          <Tabs defaultValue="personal" className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="personal">Personal Information</TabsTrigger>
-              <TabsTrigger value="documents">Documents</TabsTrigger>
-              <TabsTrigger value="security">Security</TabsTrigger>
-              <TabsTrigger value="system">System Settings</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="personal" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center text-navyblue">
-                    <User className="mr-2 h-5 w-5" />
-                    Personal Information
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Form {...profileForm}>
-                    <form onSubmit={profileForm.handleSubmit(onProfileSubmit)} className="space-y-6">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <FormField
-                          control={profileForm.control}
-                          name="firstName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>First Name</FormLabel>
-                              <FormControl>
-                                <Input {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                        <FormField
-                          control={profileForm.control}
-                          name="lastName"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Last Name</FormLabel>
-                              <FormControl>
-                                <Input {...field} />
-                              </FormControl>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-                      </div>
-                      
-                      <FormField
-                        control={profileForm.control}
-                        name="email"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Email Address</FormLabel>
-                            <FormControl>
-                              <Input type="email" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={profileForm.control}
-                        name="contactNumber"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Contact Number</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={profileForm.control}
-                        name="address"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Address</FormLabel>
-                            <FormControl>
-                              <Textarea rows={4} {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <Button
-                        type="submit"
-                        className="btn-primary text-white"
-                        disabled={updateProfileMutation.isPending}
-                      >
-                        {updateProfileMutation.isPending ? "Updating..." : "Update Profile"}
-                      </Button>
-                    </form>
-                  </Form>
                 </CardContent>
               </Card>
-            </TabsContent>
-            
-            <TabsContent value="documents" className="space-y-6">
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center text-navyblue">
-                    <CreditCard className="mr-2 h-5 w-5" />
-                    Identity Documents
-                  </CardTitle>
+                  <CardTitle>Recent Activity</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-6">
-                    <FormField
-                      control={profileForm.control}
-                      name="panNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>PAN Number</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="ABCDE1234F" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <FormField
-                      control={profileForm.control}
-                      name="aadhaarNumber"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Aadhaar Number</FormLabel>
-                          <FormControl>
-                            <Input {...field} placeholder="1234 5678 9012" />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    
-                    <Button
-                      type="button"
-                      onClick={() => profileForm.handleSubmit(onProfileSubmit)()}
-                      className="btn-primary text-white"
-                      disabled={updateProfileMutation.isPending}
-                    >
-                      {updateProfileMutation.isPending ? "Updating..." : "Update Documents"}
-                    </Button>
-                  </div>
+                  {/* Placeholder for recent activity */}
+                  <p className="text-gray-500">No recent activity to display.</p>
                 </CardContent>
               </Card>
-            </TabsContent>
-            
-            <TabsContent value="security" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center text-navyblue">
-                    <Key className="mr-2 h-5 w-5" />
-                    Change Password
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Form {...passwordForm}>
-                    <form onSubmit={passwordForm.handleSubmit(onPasswordSubmit)} className="space-y-6">
-                      <FormField
-                        control={passwordForm.control}
-                        name="currentPassword"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Current Password</FormLabel>
-                            <FormControl>
-                              <Input type="password" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={passwordForm.control}
-                        name="newPassword"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>New Password</FormLabel>
-                            <FormControl>
-                              <Input type="password" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <FormField
-                        control={passwordForm.control}
-                        name="confirmPassword"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Confirm New Password</FormLabel>
-                            <FormControl>
-                              <Input type="password" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                      
-                      <Button
-                        type="submit"
-                        className="btn-primary text-white"
-                        disabled={changePasswordMutation.isPending}
-                      >
-                        {changePasswordMutation.isPending ? "Changing..." : "Change Password"}
-                      </Button>
-                    </form>
-                  </Form>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            <TabsContent value="system" className="space-y-6">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center text-navyblue">
-                    <Settings className="mr-2 h-5 w-5" />
-                    System Preferences
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      <div>
-                        <label className="text-sm font-medium text-gray-700">Email Notifications</label>
-                        <div className="mt-2 space-y-2">
-                          <label className="flex items-center">
-                            <input type="checkbox" className="mr-2" defaultChecked />
-                            <span className="text-sm">New user registrations</span>
-                          </label>
-                          <label className="flex items-center">
-                            <input type="checkbox" className="mr-2" defaultChecked />
-                            <span className="text-sm">Contract updates</span>
-                          </label>
-                          <label className="flex items-center">
-                            <input type="checkbox" className="mr-2" defaultChecked />
-                            <span className="text-sm">System alerts</span>
-                          </label>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <label className="text-sm font-medium text-gray-700">Dashboard Settings</label>
-                        <div className="mt-2 space-y-2">
-                          <label className="flex items-center">
-                            <input type="checkbox" className="mr-2" defaultChecked />
-                            <span className="text-sm">Show user statistics</span>
-                          </label>
-                          <label className="flex items-center">
-                            <input type="checkbox" className="mr-2" defaultChecked />
-                            <span className="text-sm">Show contract metrics</span>
-                          </label>
-                          <label className="flex items-center">
-                            <input type="checkbox" className="mr-2" />
-                            <span className="text-sm">Advanced analytics</span>
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <Button className="btn-golden text-white">
-                      Save System Preferences
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+            </div>
+          </div>
         </div>
       </div>
     </ProtectedLayout>

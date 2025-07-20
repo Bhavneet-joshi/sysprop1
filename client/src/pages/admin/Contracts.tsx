@@ -18,13 +18,13 @@ import {
   Filter, 
   Calendar,
   RefreshCw,
-  User,
   Plus,
   Edit,
   Trash2,
   MoreHorizontal
 } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { Contract, User } from "@shared/types";
 
 export default function AdminContracts() {
   const { user, isAuthenticated, isLoading } = useAuth();
@@ -51,29 +51,42 @@ export default function AdminContracts() {
   }, [isAuthenticated, isLoading, user?.role, toast]);
 
   // Fetch all contracts
-  const { data: contracts, isLoading: contractsLoading, refetch } = useQuery({
+  const { data: contracts, isLoading: contractsLoading, refetch, error: contractsError } = useQuery<Contract[], Error>({
     queryKey: ["/api/contracts"],
     retry: false,
-    onError: (error: Error) => {
-      if (isUnauthorizedError(error)) {
-        toast({
-          title: "Unauthorized",
-          description: "You are logged out. Logging in again...",
-          variant: "destructive",
-        });
-        setTimeout(() => {
-          window.location.href = "/api/login";
-        }, 500);
-        return;
-      }
-    },
   });
 
+  useEffect(() => {
+    if (contractsError && isUnauthorizedError(contractsError)) {
+      toast({
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 500);
+    }
+  }, [contractsError, toast]);
+
   // Fetch users for filters
-  const { data: users } = useQuery({
+  const { data: users, error: usersError } = useQuery<User[], Error>({
     queryKey: ["/api/users"],
     retry: false,
   });
+
+  useEffect(() => {
+    if (usersError && isUnauthorizedError(usersError)) {
+      toast({
+        title: "Unauthorized",
+        description: "You are logged out. Logging in again...",
+        variant: "destructive",
+      });
+      setTimeout(() => {
+        window.location.href = "/login";
+      }, 500);
+    }
+  }, [usersError, toast]);
 
   if (isLoading) {
     return (
@@ -92,8 +105,8 @@ export default function AdminContracts() {
   // Filter and sort contracts
   const filteredContracts = (contracts || [])
     .filter(contract => {
-      const matchesSearch = contract.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           contract.description?.toLowerCase().includes(searchTerm.toLowerCase());
+      const matchesSearch = (contract.name || "").toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           (contract.description || "").toLowerCase().includes(searchTerm.toLowerCase());
       const matchesStatus = statusFilter === "all" || contract.status === statusFilter;
       const matchesClient = clientFilter === "all" || contract.clientId === clientFilter;
       const matchesEmployee = employeeFilter === "all" || contract.assignedEmployeeId === employeeFilter;
@@ -102,9 +115,9 @@ export default function AdminContracts() {
     .sort((a, b) => {
       switch (sortBy) {
         case "date":
-          return new Date(b.contractDate).getTime() - new Date(a.contractDate).getTime();
+          return new Date(b.contractDate || 0).getTime() - new Date(a.contractDate || 0).getTime();
         case "name":
-          return a.name.localeCompare(b.name);
+          return (a.name || "").localeCompare(b.name || "");
         case "status":
           return a.status.localeCompare(b.status);
         case "value":
@@ -156,206 +169,35 @@ export default function AdminContracts() {
 
   return (
     <ProtectedLayout>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Header */}
-          <div className="mb-8">
-            <div className="flex items-center justify-between">
-              <div>
-                <h1 className="text-3xl font-bold text-navyblue mb-2">Contract Management</h1>
-                <p className="text-gray-600">
-                  Oversee all contracts, assignments, and client relationships.
-                </p>
-              </div>
-              <div className="flex items-center space-x-4">
-                <Button
-                  variant="outline"
-                  onClick={() => refetch()}
-                  disabled={contractsLoading}
-                >
-                  <RefreshCw className={`h-4 w-4 mr-2 ${contractsLoading ? 'animate-spin' : ''}`} />
-                  Refresh
-                </Button>
-                <Link href="/contracts/new">
-                  <Button className="btn-primary text-white">
-                    <Plus className="h-4 w-4 mr-2" />
-                    New Contract
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-
-          {/* Stats Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Contracts</CardTitle>
-                <FileText className="h-4 w-4 text-navyblue" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-navyblue">{contracts?.length || 0}</div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Active</CardTitle>
-                <FileText className="h-4 w-4 text-green-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-green-600">
-                  {contracts?.filter(c => c.status === "active").length || 0}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">In Progress</CardTitle>
-                <FileText className="h-4 w-4 text-blue-600" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-blue-600">
-                  {contracts?.filter(c => c.status === "in_progress").length || 0}
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Value</CardTitle>
-                <FileText className="h-4 w-4 text-golden" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold text-golden">
-                  {formatCurrency(contracts?.reduce((sum, c) => sum + (c.contractValue || 0), 0) || 0)}
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
-          {/* Filters */}
-          <Card className="mb-8">
-            <CardHeader>
-              <CardTitle className="flex items-center text-navyblue">
-                <Filter className="mr-2 h-5 w-5" />
-                Filters & Search
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                  <Input
-                    placeholder="Search contracts..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-                
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Statuses</SelectItem>
-                    <SelectItem value="active">Active</SelectItem>
-                    <SelectItem value="in_progress">In Progress</SelectItem>
-                    <SelectItem value="completed">Completed</SelectItem>
-                    <SelectItem value="cancelled">Cancelled</SelectItem>
-                  </SelectContent>
-                </Select>
-
-                <Select value={clientFilter} onValueChange={setClientFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Client" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Clients</SelectItem>
-                    {clients.map((client) => (
-                      <SelectItem key={client.id} value={client.id}>
-                        {client.firstName} {client.lastName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-
-                <Select value={employeeFilter} onValueChange={setEmployeeFilter}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Employee" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Employees</SelectItem>
-                    {employees.map((employee) => (
-                      <SelectItem key={employee.id} value={employee.id}>
-                        {employee.firstName} {employee.lastName}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                
-                <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Sort by" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="date">Date</SelectItem>
-                    <SelectItem value="name">Name</SelectItem>
-                    <SelectItem value="status">Status</SelectItem>
-                    <SelectItem value="value">Value</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Contracts Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center text-navyblue">
-                <FileText className="mr-2 h-5 w-5" />
-                All Contracts ({filteredContracts.length})
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {contractsLoading ? (
-                <div className="space-y-4">
-                  {[...Array(5)].map((_, i) => (
-                    <div key={i} className="animate-pulse">
-                      <div className="h-4 bg-gray-200 rounded w-full mb-2"></div>
-                      <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                    </div>
-                  ))}
-                </div>
-              ) : filteredContracts.length === 0 ? (
-                <div className="text-center py-12">
-                  <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-                  <p className="text-gray-500 text-lg">No contracts found</p>
-                  <p className="text-sm text-gray-400 mb-6">
-                    {searchTerm || statusFilter !== "all" || clientFilter !== "all" || employeeFilter !== "all"
-                      ? "Try adjusting your search or filter criteria"
-                      : "Create your first contract to get started"
-                    }
-                  </p>
-                  <Link href="/contracts/new">
-                    <Button className="btn-primary text-white">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Create First Contract
-                    </Button>
-                  </Link>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
+          <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            {/* Left Column */}
+            <div className="lg:col-span-3">
+              <Card>
+                <CardHeader>
+                  <CardTitle>All Contracts</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex justify-between mb-4">
+                    <Input
+                      placeholder="Search contracts..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="max-w-xs"
+                    />
+                    <Link href="/contracts/new">
+                      <Button className="btn-primary text-white">
+                        <Plus className="h-4 w-4 mr-2" />
+                        New Contract
+                      </Button>
+                    </Link>
+                  </div>
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Contract</TableHead>
                         <TableHead>Client</TableHead>
-                        <TableHead>Employee</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Value</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>Actions</TableHead>
                       </TableRow>
@@ -366,37 +208,13 @@ export default function AdminContracts() {
                           <TableCell>
                             <div>
                               <p className="font-medium">{contract.name}</p>
-                              <p className="text-sm text-gray-500 truncate max-w-xs">
-                                {contract.description || "No description"}
+                              <p className="text-sm text-gray-500">
+                                {contract.contractDate && formatDate(contract.contractDate)}
                               </p>
                             </div>
                           </TableCell>
                           <TableCell>
-                            <div className="flex items-center">
-                              <User className="h-4 w-4 mr-2 text-gray-400" />
-                              {contract.clientId ? getUserName(contract.clientId) : "Unassigned"}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center">
-                              <User className="h-4 w-4 mr-2 text-gray-400" />
-                              {contract.assignedEmployeeId ? getUserName(contract.assignedEmployeeId) : "Unassigned"}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center">
-                              <Calendar className="h-4 w-4 mr-2 text-gray-400" />
-                              {formatDate(contract.contractDate)}
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            {contract.contractValue ? (
-                              <span className="font-medium">
-                                {formatCurrency(contract.contractValue)}
-                              </span>
-                            ) : (
-                              <span className="text-gray-500">Not specified</span>
-                            )}
+                            {contract.clientId ? getUserName(contract.clientId) : "Unassigned"}
                           </TableCell>
                           <TableCell>
                             <Badge className={getStatusColor(contract.status)}>
@@ -404,39 +222,60 @@ export default function AdminContracts() {
                             </Badge>
                           </TableCell>
                           <TableCell>
-                            <div className="flex items-center space-x-2">
-                              <Link href={`/contracts/${contract.id}`}>
-                                <Button size="sm" variant="outline">
-                                  <Eye className="h-4 w-4" />
-                                </Button>
-                              </Link>
-                              <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                  <Button size="sm" variant="outline">
-                                    <MoreHorizontal className="h-4 w-4" />
-                                  </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                  <DropdownMenuItem>
-                                    <Edit className="h-4 w-4 mr-2" />
-                                    Edit Contract
-                                  </DropdownMenuItem>
-                                  <DropdownMenuItem className="text-red-600">
-                                    <Trash2 className="h-4 w-4 mr-2" />
-                                    Delete Contract
-                                  </DropdownMenuItem>
-                                </DropdownMenuContent>
-                              </DropdownMenu>
-                            </div>
+                            <Link href={`/contracts/${contract.id}`}>
+                              <Button size="sm" variant="outline">
+                                <Eye className="h-4 w-4" />
+                              </Button>
+                            </Link>
                           </TableCell>
                         </TableRow>
                       ))}
                     </TableBody>
                   </Table>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                </CardContent>
+              </Card>
+            </div>
+
+            {/* Right Column */}
+            <div className="space-y-8">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Contract Stats</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex justify-between">
+                    <span>Total Contracts</span>
+                    <span>{contracts?.length || 0}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>Active</span>
+                    <span>{contracts?.filter(c => c.status === "active").length || 0}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span>In Progress</span>
+                    <span>{contracts?.filter(c => c.status === "in_progress").length || 0}</span>
+                  </div>
+                </CardContent>
+              </Card>
+              <Card>
+                <CardHeader>
+                  <CardTitle>Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2">
+                  <Link href="/contracts/new">
+                    <Button variant="outline" className="w-full justify-start">
+                      <Plus className="h-4 w-4 mr-2" />
+                      New Contract
+                    </Button>
+                  </Link>
+                  <Button variant="outline" className="w-full justify-start">
+                    <RefreshCw className="h-4 w-4 mr-2" />
+                    Refresh List
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </div>
         </div>
       </div>
     </ProtectedLayout>

@@ -16,7 +16,8 @@ export function getSession() {
     saveUninitialized: false,
     cookie: {
       httpOnly: true,
-      secure: false, // Set to false for development
+      secure: false, // false for local dev, true for HTTPS in prod
+      sameSite: "lax", // or "none" if using HTTPS and cross-origin
       maxAge: 7 * 24 * 60 * 60 * 1000, // 1 week
     },
   });
@@ -27,22 +28,22 @@ export async function setupAuth(app: Express) {
   app.use(getSession());
 
   // Mock login endpoint
-  app.get("/api/login", (req, res) => {
-    // For development, automatically log in as admin
-    const mockUser = {
-      claims: {
-        sub: "admin-1",
-        email: "admin@example.com",
-        first_name: "Admin",
-        last_name: "User",
-        profile_image_url: "",
-      },
+  app.get("/api/login", async (req, res) => {
+    // Accept ?user=admin-1, ?user=client-1, ?user=employee-1
+    let userId = req.query.user || "admin-1";
+    if (Array.isArray(userId)) userId = userId[0];
+    userId = String(userId);
+    let mockUser = await storage.getUser(userId);
+    if (!mockUser) {
+      // fallback to admin if not found
+      mockUser = await storage.getUser("admin-1");
+    }
+    req.session.user = {
+      ...mockUser,
       access_token: "mock-token",
       refresh_token: "mock-refresh-token",
       expires_at: Math.floor(Date.now() / 1000) + 3600, // 1 hour from now
     };
-
-    req.session.user = mockUser;
     res.redirect("/");
   });
 

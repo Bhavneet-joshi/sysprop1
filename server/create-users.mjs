@@ -1,9 +1,9 @@
 import fetch from 'node-fetch';
 
 const users = [
-  { email: 'admin@test.com', password: 'Qwerty@1234', role: 'admin' },
-  { email: 'client@test.com', password: 'Qwerty@1234', role: 'client' },
-  { email: 'employee@test.com', password: 'Qwerty@1234', role: 'employee' },
+  { email: 'admin@example.com', password: 'Qwerty@1234', role: 'admin' },
+  { email: 'client@example.com', password: 'Qwerty@1234', role: 'client' },
+  { email: 'employee@example.com', password: 'Qwerty@1234', role: 'employee' },
 ];
 
 async function createUsers() {
