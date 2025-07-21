@@ -116,9 +116,9 @@ export default function ClientDashboard() {
                       <p className="text-gray-500">No contracts found</p>
                     </div>
                   ) : (
-                    <div className="space-y-4">
+                    <div className="space-y-6"> {/* Increased spacing between contract cards */}
                       {recentContracts.map((contract: Contract) => (
-                        <div key={contract.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors">
+                        <div key={contract.id} className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors mb-2"> {/* Added mb-2 for spacing */}
                           <div className="flex-1">
                             <p className="text-sm font-medium text-navyblue truncate">
                               {contract.name}

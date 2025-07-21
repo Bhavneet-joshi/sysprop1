@@ -5,9 +5,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 
-const AdminNewContract: React.FC = () => {
+const AdminNewContractDemo: React.FC = () => {
   return (
-    <div className="container mx-auto p-4">
+    <div>
       <h1 className="text-2xl font-bold mb-4">New Contract</h1>
       <Card>
         <CardHeader>
@@ -51,4 +51,4 @@ const AdminNewContract: React.FC = () => {
   );
 };
 
-export default AdminNewContract;
+export default AdminNewContractDemo;

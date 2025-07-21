@@ -42,13 +42,34 @@ import { Footer } from './components/Footer';
 import { ThemeProvider } from "@/hooks/useTheme";
 import PublicLayout from "./components/PublicLayout";
 import ProtectedLayout from "./components/ProtectedLayout";
+import { useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
+import AdminDashboardDemo from "@/pages/demo/AdminDashboardDemo";
+import AdminContractsDemo from "@/pages/demo/AdminContractsDemo";
+import AdminContractSpecificDemo from "@/pages/demo/AdminContractSpecificDemo";
+import AdminNewContractDemo from "@/pages/demo/AdminNewContractDemo";
+import AdminProfileDemo from "@/pages/demo/AdminProfileDemo";
+import AdminUserManagementDemo from "@/pages/demo/AdminUserManagementDemo";
+
+import ClientDashboardDemo from "@/pages/demo/ClientDashboardDemo";
+import ClientContractsDemo from "@/pages/demo/ClientContractsDemo";
+import ClientContractViewDemo from "@/pages/demo/ClientContractViewDemo";
+import ClientProfileDemo from "@/pages/demo/ClientProfileDemo";
+
+import EmployeeDashboardDemo from "@/pages/demo/EmployeeDashboardDemo";
+import EmployeeContractsDemo from "@/pages/demo/EmployeeContractsDemo";
+import EmployeeContractSpecificDemo from "@/pages/demo/EmployeeContractSpecificDemo";
+import EmployeeProfileDemo from "@/pages/demo/EmployeeProfileDemo";
+import AdminDemoLayout from "@/pages/demo/AdminDemoLayout";
+import ClientDemoLayout from "@/pages/demo/ClientDemoLayout";
+import EmployeeDemoLayout from "@/pages/demo/EmployeeDemoLayout";
 
 function Router() {
   const { isAuthenticated, isLoading, user, error } = useAuth();
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (
-      error?.message.includes("401") &&
+      error?.message?.includes("401") &&
       !window.location.pathname.startsWith("/login") &&
       !window.location.pathname.startsWith("/register")
     ) {
@@ -66,10 +87,54 @@ function Router() {
 
   return (
     <Switch>
+      {/* Demo-only: Direct dashboard routes for mock data, not protected */}
+      <Route path="/demo/admin/dashboard">
+        <AdminDemoLayout><AdminDashboardDemo /></AdminDemoLayout>
+      </Route>
+      <Route path="/demo/admin/contracts">
+        <AdminDemoLayout><AdminContractsDemo /></AdminDemoLayout>
+      </Route>
+      <Route path="/demo/admin/contracts/specific">
+        <AdminDemoLayout><AdminContractSpecificDemo /></AdminDemoLayout>
+      </Route>
+      <Route path="/demo/admin/contracts/new">
+        <AdminDemoLayout><AdminNewContractDemo /></AdminDemoLayout>
+      </Route>
+      <Route path="/demo/admin/profile">
+        <AdminDemoLayout><AdminProfileDemo /></AdminDemoLayout>
+      </Route>
+      <Route path="/demo/admin/users">
+        <AdminDemoLayout><AdminUserManagementDemo /></AdminDemoLayout>
+      </Route>
+
+      <Route path="/demo/client/dashboard">
+        <ClientDemoLayout><ClientDashboardDemo /></ClientDemoLayout>
+      </Route>
+      <Route path="/demo/client/contracts">
+        <ClientDemoLayout><ClientContractsDemo /></ClientDemoLayout>
+      </Route>
+      <Route path="/demo/client/contracts/view">
+        <ClientDemoLayout><ClientContractViewDemo /></ClientDemoLayout>
+      </Route>
+      <Route path="/demo/client/profile">
+        <ClientDemoLayout><ClientProfileDemo /></ClientDemoLayout>
+      </Route>
+
+      <Route path="/demo/employee/dashboard">
+        <EmployeeDemoLayout><EmployeeDashboardDemo /></EmployeeDemoLayout>
+      </Route>
+      <Route path="/demo/employee/contracts">
+        <EmployeeDemoLayout><EmployeeContractsDemo /></EmployeeDemoLayout>
+      </Route>
+      <Route path="/demo/employee/contracts/specific">
+        <EmployeeDemoLayout><EmployeeContractSpecificDemo /></EmployeeDemoLayout>
+      </Route>
+      <Route path="/demo/employee/profile">
+        <EmployeeDemoLayout><EmployeeProfileDemo /></EmployeeDemoLayout>
+      </Route>
       {/* Unauthenticated routes */}
       <Route path="/login" component={Login} />
       <Route path="/register" component={Register} />
-
       {/* Authenticated routes */}
       {isAuthenticated ? (
         <ProtectedLayout>
@@ -131,7 +196,7 @@ function App() {
           <div className="pt-16 min-h-screen flex flex-col bg-background">
             <Toaster />
             <Router />
-            <Footer />
+            {/* <Footer /> Removed to prevent double rendering */}
           </div>
         </TooltipProvider>
       </ThemeProvider>

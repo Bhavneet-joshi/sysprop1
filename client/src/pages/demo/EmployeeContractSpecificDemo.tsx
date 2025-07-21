@@ -3,15 +3,15 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 
 const contract = {
-  name: 'Contract A',
-  description: 'This is a detailed description of Contract A, including all its terms and conditions.',
-  date: '2024-01-15',
+  name: 'Contract X',
+  description: 'This is a detailed description of Contract X, including all its terms and conditions.',
+  date: '2024-07-01',
   duration: '12 months',
 };
 
-const AdminContractSpecific: React.FC = () => {
+const EmployeeContractSpecificDemo: React.FC = () => {
   return (
-    <div className="container mx-auto p-4">
+    <div>
       <h1 className="text-2xl font-bold mb-4">Contract Details</h1>
       <Card>
         <CardHeader>
@@ -36,4 +36,4 @@ const AdminContractSpecific: React.FC = () => {
   );
 };
 
-export default AdminContractSpecific;
+export default EmployeeContractSpecificDemo;

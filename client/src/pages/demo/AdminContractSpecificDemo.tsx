@@ -9,9 +9,9 @@ const contract = {
   duration: '12 months',
 };
 
-const AdminContractSpecific: React.FC = () => {
+const AdminContractSpecificDemo: React.FC = () => {
   return (
-    <div className="container mx-auto p-4">
+    <div>
       <h1 className="text-2xl font-bold mb-4">Contract Details</h1>
       <Card>
         <CardHeader>
@@ -36,4 +36,4 @@ const AdminContractSpecific: React.FC = () => {
   );
 };
 
-export default AdminContractSpecific;
+export default AdminContractSpecificDemo;
